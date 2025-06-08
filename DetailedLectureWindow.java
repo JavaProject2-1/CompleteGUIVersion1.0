@@ -196,9 +196,6 @@ public class DetailedLectureWindow extends JFrame {
             }
         }
         
-        // 디버깅 정보 출력
-        System.out.println(debugInfo.toString());
-        
         if (addedCount > 0) {
             JOptionPane.showMessageDialog(this, addedCount + "개의 강의가 시간표에 추가되었습니다.", "완료", JOptionPane.INFORMATION_MESSAGE);
         } else {
@@ -333,7 +330,6 @@ public class DetailedLectureWindow extends JFrame {
             // 새로운 과목이면 새로운 색깔 생성
             Color newColor = generateDistinctColor(SUBJECT_COLORS.size());
             SUBJECT_COLORS.put(subjectName, newColor);
-            System.out.println("새 과목 색깔 생성: " + subjectName + " -> " + newColor);
         }
         return SUBJECT_COLORS.get(subjectName);
     }
@@ -398,8 +394,6 @@ public class DetailedLectureWindow extends JFrame {
             return timeSlots;
         }
         
-        System.out.println("원본 강의시간: '" + lectureTime + "'");
-        
         // 교시 형태 파싱: "화 8B,9A,9B,목 8B,9A,9B" 또는 "금 6A,6B,금 7A,7B,금 8A,8B,금 9A,9B"
         Map<String, List<String>> dayToPeriods = parsePeriodFormat(lectureTime);
         
@@ -410,8 +404,6 @@ public class DetailedLectureWindow extends JFrame {
                 List<String> periods = entry.getValue();
                 
                 if (!periods.isEmpty()) {
-                    System.out.println(day + "요일 교시 목록: " + periods);
-                    
                     // 연속된 교시들을 그룹화하여 처리
                     List<List<String>> periodGroups = groupConsecutivePeriods(periods);
                     
@@ -422,8 +414,6 @@ public class DetailedLectureWindow extends JFrame {
                             
                             if (startTime != null && endTime != null) {
                                 timeSlots.add(new TimeSlot(day, startTime, endTime));
-                                System.out.println("교시 그룹 파싱: " + day + " " + startTime + "~" + endTime + 
-                                                  " (교시: " + group + ")");
                             }
                         }
                     }
@@ -475,8 +465,6 @@ public class DetailedLectureWindow extends JFrame {
         if (!currentGroup.isEmpty()) {
             groups.add(currentGroup);
         }
-        
-        System.out.println("교시 그룹화 결과: " + groups);
         return groups;
     }
 
@@ -506,11 +494,9 @@ public class DetailedLectureWindow extends JFrame {
      * "화 2B,3A,3B,목 2B,3A,3B"처럼 요일없이 나오는 경우도 바로 이전 요일을 따라간다!
      */
     private Map<String, List<String>> parsePeriodFormat(String lectureTime) {
-    	System.out.println(lectureTime);
         Map<String, List<String>> dayToPeriods = new HashMap<>();
         // 괄호 제거
         String cleanTime = lectureTime.replaceAll("[()\\[\\]]", "").trim();
-        System.out.println("정리된 강의시간: '" + cleanTime + "'");
 
         String[] parts = cleanTime.split(",");
         String currentDay = null;
@@ -542,7 +528,6 @@ public class DetailedLectureWindow extends JFrame {
                 System.out.println("parsePeriodFormat 기타 예외: " + part);
             }
         }
-        System.out.println("파싱 결과: " + dayToPeriods);
         return dayToPeriods;
     }
 
@@ -564,7 +549,6 @@ public class DetailedLectureWindow extends JFrame {
                 TimeSlot slot = parseIndividualTimeSlot(timePart);
                 if (slot != null) {
                     timeSlots.add(slot);
-                    System.out.println("시간 파싱 성공: " + slot.getDay() + " " + slot.getStartTime() + "~" + slot.getEndTime());
                 }
             } catch (Exception e) {
                 System.err.println("시간 파싱 오류: " + timePart + " - " + e.getMessage());
@@ -579,7 +563,6 @@ public class DetailedLectureWindow extends JFrame {
      */
     private String convertPeriodToTime(String period) {
         String time = PERIOD_TO_TIME.get(period);
-        System.out.println("교시 " + period + " -> 시작시간 " + time);
         return time;
     }
 
@@ -589,7 +572,6 @@ public class DetailedLectureWindow extends JFrame {
     private String convertPeriodToEndTime(String period) {
         String startTime = PERIOD_TO_TIME.get(period);
         if (startTime == null) {
-            System.out.println("교시 " + period + "에 대한 시간을 찾을 수 없음");
             return null;
         }
         
@@ -605,7 +587,6 @@ public class DetailedLectureWindow extends JFrame {
             }
             
             String endTime = String.format("%02d:%02d", hour, minute);
-            System.out.println("교시 " + period + " -> 종료시간 " + endTime + " (시작: " + startTime + " + 30분)");
             return endTime;
         } catch (Exception e) {
             System.err.println("종료시간 계산 오류: " + period + " - " + e.getMessage());
@@ -651,7 +632,6 @@ public class DetailedLectureWindow extends JFrame {
         List<TimeSlot> timeSlots = parseTimeSlots(subject.getLectureTime());
         
         if (timeSlots.isEmpty()) {
-            System.out.println("시간 정보가 없는 과목: " + subject.getName());
             return false;
         }
         
@@ -661,7 +641,6 @@ public class DetailedLectureWindow extends JFrame {
         for (TimeSlot slot : timeSlots) {
             int dayIndex = getDayIndex(slot.getDay());
             if (dayIndex == -1) {
-                System.out.println("지원하지 않는 요일: " + slot.getDay());
                 continue;
             }
             
@@ -671,15 +650,11 @@ public class DetailedLectureWindow extends JFrame {
             int endMinute = getMinuteFromTime(slot.getEndTime());
             
             if (startHour == -1 || endHour == -1) {
-                System.out.println("시간 파싱 실패: " + slot.getStartTime() + "~" + slot.getEndTime());
                 continue;
             }
             
-            System.out.println("정확한 시간 정보: " + slot.getStartTime() + "~" + slot.getEndTime());
-            
             // 시간표 범위 체크 (9시~18시)
             if (startHour < 9 || endHour > 18 || (startHour == endHour && startMinute >= endMinute)) {
-                System.out.println("시간표 범위 벗어남 또는 잘못된 시간: " + slot.getStartTime() + "~" + slot.getEndTime());
                 continue;
             }
             
@@ -690,16 +665,10 @@ public class DetailedLectureWindow extends JFrame {
             int row = startSlot + 1; // 1부터 시작
             int height = Math.max(1, endSlot - startSlot);
             
-            System.out.println("시간표 위치: 열=" + (dayIndex + 1) + ", 행=" + row + ", 높이=" + height);
-            System.out.println("계산 과정: 시작슬롯=" + startSlot + ", 종료슬롯=" + endSlot);
-            System.out.println("시작시간=" + startHour + ":" + startMinute + ", 종료시간=" + endHour + ":" + endMinute);
-            
             // 실제 시간 정보 포함하여 추가
             String timeInfo = slot.getStartTime() + "~" + slot.getEndTime();
             timetableGUI.addSubjectToTableWithTime(subject.getName(), subject.getProfessor(), subject.getClassroom(), dayIndex + 1, row, height, subjectColor, timeInfo);
             added = true;
-            
-            System.out.println("시간표에 추가됨: " + subject.getName() + " - " + slot.getDay() + " " + timeInfo + " (색깔: " + subjectColor + ")");
         }
         
         return added;

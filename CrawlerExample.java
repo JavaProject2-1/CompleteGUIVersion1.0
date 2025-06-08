@@ -122,8 +122,6 @@ public class CrawlerExample {
                 Subject s = selectedSubjects.get(idx);
                 
                 try {
-                    System.out.println("처리 중: " + s.getName() + " (" + (idx + 1) + "/" + selectedSubjects.size() + ")");
-                    
                     driver.navigate().refresh();
                     wait.until(ExpectedConditions.presenceOfElementLocated(By.id("schEstblYear___input")));
 
