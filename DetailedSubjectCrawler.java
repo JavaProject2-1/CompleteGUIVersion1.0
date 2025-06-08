@@ -97,8 +97,6 @@ public class DetailedSubjectCrawler {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
             JavascriptExecutor js = (JavascriptExecutor) driver;
 
-            System.out.println("과목명으로 검색 중: " + subjectName);
-
             WebElement yearInput = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("schEstblYear___input")));
             js.executeScript("arguments[0].value=arguments[1];", yearInput, inputYearFull);
 
@@ -173,7 +171,6 @@ public class DetailedSubjectCrawler {
                             );
 
                             detailedSubjects.add(detailedSubject);
-                            System.out.println("추가된 강의: " + name + " - " + professor + " (" + lectureTime + ")");
                         } catch (Exception e) {
                             System.err.println("행 파싱 중 오류: " + e.getMessage());
                         }
@@ -183,14 +180,14 @@ public class DetailedSubjectCrawler {
                 if (isLastScroll) break;
             }
 
-            System.out.println("총 " + detailedSubjects.size() + "개 강의 발견");
-
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("크롤링 중 오류 발생: " + e.getMessage());
         } finally {
             driver.quit();
         }
+        
+        RatingUpdater.applyRatings(detailedSubjects, "course_rating.txt");
 
         return detailedSubjects;
     }
