@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.HashSet;
 
-
 public class TimetableGUI extends JFrame {
     private JPanel timetablePanel;
     private GridBagConstraints gbc;
